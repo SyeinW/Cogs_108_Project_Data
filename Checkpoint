@@ -1,0 +1,405 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**If you lost points on the last checkpoint you can get them back by responding to TA/IA feedback**  \n",
+    "\n",
+    "Update/change the relevant sections where you lost those points, make sure you respond on GitHub Issues to your TA/IA to call their attention to the changes you made here.\n",
+    "\n",
+    "Please update your Timeline... no battle plan survives contact with the enemy, so make sure we understand how your plans have changed."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# COGS 108 - Data Checkpoint"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Names\n",
+    "\n",
+    "- Andy Liu\n",
+    "- Shane West\n",
+    "- Luis Martinez-Chun\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Research Question"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "How accurately can daily stock price movements for S&P 500 companies be predicted using a combination of public sentiment (from social media and news), ESG scores, and quarterly earnings report data? Specifically, how much does each of these factors contribute to the prediction accuracy, and do their impacts vary across different sectors?\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Background and Prior Work"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    " Predicting stock price movements has long been an issue for investors, and analysts alike. With the rise of data analysis and machine learning, the potential to leverage datasets has changed how predictions are approached. Public sentiment derived from social media platforms and news outlets has emerged as a crucial factor influencing market behavior, reflecting investor emotions and perceptions about companies. Additionally, Environmental, Social, and Governance (ESG) scores have gained prominence as indicators of a company's long-term viability, influencing investor decisions</a>[<sup>2</sup>](#cite_note-2) . Quarterly earnings reports remain at the forefront of financial analysis, providing insights into a company's performance and future outlook. This project seeks to investigate how these elements can be leveraged together to enhance the accuracy of predicting daily stock price movements for S&P 500 companies.\n",
+    "\n",
+    "Many different studies have explored the idea of public sentiment affecting stock price. For instance, emotion discourse relayed on the social media forum known as Twitter has been shown to affect the S&P 500 </a>[<sup>1</sup>](#cite_note-1) . The study showed that emotional outburst had a negative correlation with the S&P 500, possibly suggesting that public sentiment could be predictive of stock trends.\n",
+    "\n",
+    "Similarly, ESG performance has been shown to have an impact on stock prices, companies with higher ESG scores generally experience better stock performance, especially in sectors where ethical considerations are of great importance.The findings indicate that ESG ratings can significantly influence investor behavior and market valuations, highlighting the need to integrate these scores into predictive models for a more comprehensive analysis </a>[<sup>2</sup>](#cite_note-2) .\n",
+    "\n",
+    "1. <a name=\"cite_note-1\"></a> [^](#cite_ref-1) Zhang, X., Fuehres, H., & Gloor, P. A. (2011). Predicting stock market indicators through twitter “I hope it is not as bad as I fear.” Procedia - Social and Behavioral Sciences, 26, 55–62. https://doi.org/10.1016/j.sbspro.2011.10.562. \n",
+    "2. <a name=\"cite_note-2\"></a> [^](#cite_ref-2) Kulal, A., N, A., Dinesh, S., & M.S., D. (2023, June). Impact of environmental, social, and governance (ESG) factors on stock prices and investment performance. Macro Management & Public Policies. https://ojs.s-p.sg/index.php/mmpp/article/view/15869 \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Hypothesis\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "Our main hypothesis is that daily stock price movements for S&P 500 companies can be moderately predicted by combining public sentiment from social media and news, ESG (Environmental, Social, and Governance) scores, and quarterly earnings report data. We predict that while each factor contributes to the prediction accuracy, public sentiment will have the most immediate and significant impact on daily price movements, especially in sectors like technology and consumer goods. ESG scores might have a more gradual, long-term impact, while quarterly earnings will cause short-term volatility around earnings release dates, particularly in sectors like financials and industrials."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Data"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Data overview\n",
+    "\n",
+    "For each dataset include the following information\n",
+    "- Dataset #1\n",
+    "  - Dataset Name: S&P 500 Stocks\n",
+    "  - Link to the dataset: https://www.kaggle.com/datasets/andrewmvd/sp-500-stocks\n",
+    "  - Number of observations: ~500\n",
+    "  - Number of variables: 7\n",
+    "- Dataset #2\n",
+    "  - Dataset Name: S&P 500 ESG Risk Ratings\n",
+    "  - Link to the dataset: https://www.kaggle.com/datasets/pritish509/s-and-p-500-esg-risk-ratings\n",
+    "  - Number of observations: ~500\n",
+    "  - Number of variables: 9\n",
+    "- Dataset #3\n",
+    "  - Dataset Name: Stock News Events Sentiment (SNES)\n",
+    "  - Link to the dataset: https://www.kaggle.com/datasets/parsabg/stocknewseventssentiment-snes-10\n",
+    "  - Number of observations: ~218K\n",
+    "  - Number of variables: 9\n",
+    "\n",
+    "### Dataset #1:\n",
+    "This dataset contains the stocks we will be analyzing. We will refer to the `symbol` of the stock. Key variables include sector, industry, current price, EBITDA (earnings), revenue, and market cap. We will need to align the time interval of the data so that it corresponds to the time interval of our other datasets.\n",
+    "\n",
+    "### Dataset #2:\n",
+    "The S&P 500 ESG Risk dataset includes the total ESG risk score, ESG risk and controversy levels, controversy scores, and ESG risk percentiles. While it contains additional variables, we will retain only the `symbols` variable for easier data integration. Note that the dataset does not include a timeline and was last updated five months ago, so all other datasets will need to align with this update schedule.\n",
+    "\n",
+    "### Dataset #3: \n",
+    "The Stock News Events Sentiment (SNES) dataset includes the stocks for our analysis, identified by their symbols. The four key variables for each stock include `Date`, `Symbol`, `News - Volume`, `News - Positive Sentiment`, and `News - Negative Sentiment`. The dataset also includes many other variables that overlaps with other datasets such as financial metrics, which we will leave out.\n",
+    "\n",
+    "### Combining Datasets:\n",
+    "We plan to use deep learning to conduct our hypothesis. We will feed in aligned data from each dataset."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Setup\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## Manipulation and analysis of data\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "## Basic charts/graphs\n",
+    "import matplotlib.pyplot as plt\n",
+    "## Not currently used\n",
+    "import seaborn as sns\n",
+    "\n",
+    "\n",
+    "## Load in Companies Dataset\n",
+    "SP_companies_url = 'https://github.com/COGS108/Group181-FA24/blob/master/Data/sp500_companies.csv'\n",
+    "SP_companies = pd.read_csv(SP_companies_url)\n",
+    "\n",
+    "## empty dataframe to manipulate to recombine split csv file\n",
+    "## should make this a loop at some point, don't know how to do atm\n",
+    "df = []\n",
+    "## Load in Stock dataset\n",
+    "SP_Stock_url1 = 'https://github.com/COGS108/Group181-FA24/blob/master/Data/sp500_stocks_1.csv'\n",
+    "SP_Stock_url2 = 'https://github.com/COGS108/Group181-FA24/blob/master/Data/sp500_stocks_2.csv'\n",
+    "SP_Stock_url3 = 'https://github.com/COGS108/Group181-FA24/blob/master/Data/sp500_stocks_3.csv'\n",
+    "SP_Stock_temp1 = pd.read_csv(SP_Stock_url1)\n",
+    "SP_Stock_temp2 = pd.read_csv(SP_Stock_url2)\n",
+    "SP_Stock_temp3 = pd.read_csv(SP_Stock_url3)\n",
+    "## Adding all S&P stock dfs to df\n",
+    "df.append(SP_Stock_url1)\n",
+    "df.append(SP_Stock_url2)\n",
+    "df.append(SP_Stock_url3)\n",
+    "## Concatenating all dfs together\n",
+    "SP_Stock = pd.concat(df, ignore_index=True)\n",
+    "\n",
+    "## Load in ESG Risk Rating dataset\n",
+    "SP_ESG_url = 'https://raw.githubusercontent.com/SyeinW/Cogs_108_Project_Data/refs/heads/main/Data/SP%20500%20ESG%20Risk%20Ratings.csv'\n",
+    "SP_ESG = pd.read_csv(SP_ESG_url)\n",
+    "\n",
+    "## Load in Public Sentiment dataset\n",
+    "SP_SNES_url = 'https://raw.githubusercontent.com/SyeinW/Cogs_108_Project_Data/refs/heads/main/Data/SNES_data.csv'\n",
+    "SP_SNES = pd.read_csv(SP_SNES_url)\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Data Cleaning\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Stocks\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 1. Convert 'Date' column to datetime format\n",
+    "SP_Stock['Date'] = pd.to_datetime(df['Date'])\n",
+    "\n",
+    "# 2. Set 'Date' as the index\n",
+    "SP_Stock.set_index('Date', inplace=True)\n",
+    "\n",
+    "# 3. Drop rows with any missing values\n",
+    "SP_Stock.dropna(inplace=True)\n",
+    "\n",
+    "# 4. Remove duplicates (if any)\n",
+    "SP_Stock.drop_duplicates(inplace=True)\n",
+    "\n",
+    "# 5. Drop unnecessary columns\n",
+    "SP_Stock = df.drop(columns=['Shortname', 'Longname', 'S&P500'])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# ESG\n",
+    "ESG is going to have all of our data on Environment, Social and Governance Risk scores\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## ESG Dataset\n",
+    "## We only need certain columns as some are redundant \n",
+    "ESG_cleaned = SP_ESG[['Symbol','Total ESG Risk Score','Environment Risk Score','Governance Risk Score','Social Risk Score','Controversy Level','Controversy Score','ESG Risk Percentile','ESG Risk Level']]\n",
+    "\n",
+    "## Replace any missing values with 0\n",
+    "ESG_cleaned = ESG_cleaned.fillna(0)\n",
+    "\n",
+    "## Clean Dataset\n",
+    "ESG_cleaned.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Sentiment\n",
+    "\n",
+    "The SNES dataset was fairly clean to begin with, only containing a few missing values for the columns we were interested in. To combat this we filled missing values with entries of `0`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# SNES Dataset\n",
+    "# 1. Select columns we need\n",
+    "SNES_cleaned = SP_SNES[['Date', 'Symbol', 'News - Volume', 'News - Positive Sentiment', 'News - Negative Sentiment']]\n",
+    "\n",
+    "# 2. Determine missing values\n",
+    "print(f'NaN Values Before Tidying:\\n{SNES_cleaned.isna().sum()}\\n\\n')\n",
+    "\n",
+    "# 3. Fill missing sentiment values with 0\n",
+    "SNES_cleaned = SNES_cleaned.fillna(0)\n",
+    "print(f'NaN Values After Tidying:\\n{SNES_cleaned.isna().sum()}\\n\\n')\n",
+    "\n",
+    "# 4. Preview cleaned dataset\n",
+    "SNES_cleaned.head()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Results\n",
+    "\n",
+    "## Exploratory Data Analysis\n",
+    "\n",
+    "Carry out whatever EDA you need to for your project.  Because every project will be different we can't really give you much of a template at this point. But please make sure you describe the what and why in text here as well as providing interpretation of results and context."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Section 1 of EDA - please give it a better title than this\n",
+    "\n",
+    "Some more words and stuff.  Remember notebooks work best if you interleave the code that generates a result with properly annotate figures and text that puts these results into context."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## YOUR CODE HERE\n",
+    "## FEEL FREE TO ADD MULTIPLE CELLS PER SECTION"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Section 2 of EDA if you need it  - please give it a better title than this\n",
+    "\n",
+    "Some more words and stuff.  Remember notebooks work best if you interleave the code that generates a result with properly annotate figures and text that puts these results into context."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## YOUR CODE HERE\n",
+    "## FEEL FREE TO ADD MULTIPLE CELLS PER SECTION"
+   ]
+  },
+ {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Ethics & Privacy"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "There are several ethical and privacy concerns associated with using public sentiment data, particularly from social media platforms. Social media data, especially from platforms like Twitter or Reddit, may include personally identifiable information (PII) or be subject to terms of use that limit how the data can be collected, stored, and analyzed. To avoid privacy violations, we would ensure that any data collection process adheres to platform-specific policies and anonymizes user data. Additionally, sentiment analysis tools should not extract or store user-specific information but should aggregate sentiment data at the company or market level.\n",
+    "\n",
+    "Bias is another significant concern, particularly with public sentiment data. Social media users are not a fully representative sample of the population, and there may be inherent biases in who posts, which platforms are used, and which companies or sectors are discussed. For example, technology companies may be overrepresented in social media discussions compared to industrial or utilities companies. To mitigate this, we would compare sentiment data across multiple platforms and consider weighting sentiment scores by the volume of discussion relative to the sector’s overall market size.\n",
+    "\n",
+    "ESG data also presents potential biases, as ESG scoring methodologies vary between providers, and the criteria used to assess companies can reflect subjective judgments. To address this, we would consider using multiple ESG data sources and cross-referencing scores to minimize provider-specific biases.\n",
+    "\n",
+    "Lastly, when communicating the results of the analysis, we would need to be transparent about the limitations of the data, particularly the potential biases in social media sentiment and ESG scores. Additionally, we would avoid making deterministic claims about stock price movements, as stock markets are influenced by a multitude of factors beyond those in the dataset."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Team Expectations "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "* *Show up to scheduled group meetings on time. Respect everyone's time, if you can't show up to a meeting, let the group know at least an hour in advance*\n",
+    "* *All meetings will be done online on Discord, at least once a week*\n",
+    "* *Tone - blunt but polite*\n",
+    "* *Decisions will be made by majority vote, if someone isn't responsive within a timely manner then their vote is void. We should never put ourselves in a situation is time-limited such that a member has <4 hours respond*\n",
+    "* *For tasks, we expect everyone to do a bit of everything. We are not interested in specialization, we believe everyone should know every part of the project*\n",
+    "* *If someone in the group isn't able to deliver what they promised to do, them it is up to that person to get help from the group. Communicate and let others in the group know that you are struggling to complete your task and we will allocate resources to help you finish your part. DO NOT wait till the last minute(24 hours before deadline) and spring it on us*\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Project Timeline Proposal"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Specify your team's specific project timeline. An example timeline has been provided. Changes the dates, times, names, and details to fit your group's plan.\n",
+    "\n",
+    "If you think you will need any special resources or training outside what we have covered in COGS 108 to solve your problem, then your proposal should state these clearly. For example, if you have selected a problem that involves implementing multiple neural networks, please state this so we can make sure you know what you’re doing and so we can point you to resources you will need to implement your project. Note that you are not required to use outside methods.\n",
+    "\n",
+    "\n",
+    "\n",
+    "| Meeting Date  | Meeting Time| Completed Before Meeting  | Discuss at Meeting |\n",
+    "|---|---|---|---|\n",
+    "| 12/2  | 12 PM  | Complete analysis; Draft results/conclusion/discussion  | Discuss/edit full project |\n",
+    "| 12/6  | 12 PM  | (same as 12/2 for a reason)Complete analysis; Draft results/conclusion/discussion | Discuss/edit full project |\n",
+    "| 12/9  | Before 11:59 PM  | Final Project & video | Turn in Final Project & Group Project Surveys |"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.12"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
